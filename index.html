@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Чат программы</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style >
+      body {background: #98bfd5;}
+    </style>
+  </head>
+  <body>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+      <h5 class="my-0 mr-md-auto font-weight-normal">eks</h5>
+      <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark" href="#">Features</a>
+        <a class="p-2 text-dark" href="#">Enterprise</a>
+        <a class="p-2 text-dark" href="#">Support</a>
+        <a class="p-2 text-dark" href="#">Pricing</a>
+      </nav>
+      <a class="btn btn-outline-primary" href="#">Sign up</a>
+    </div>
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>Чат программы</h2>
+        <p class="lead">Укажите ваше имя</p>
+      </div>
+      <div class="row">
+        <div class="col-6">
+          <h3>Форма сообщений</h3>
+          <form class="messForm" id="messForm">
+            <label for="name">Имя</label>
+            <input type="text" name="name" id="name" placeholder="Введите имя" class="form-control">
+            <label for="message">Сообщение</label>
+            <textarea name="message" id="message" class="form-control" placeholder="Введите текст сообщения"></textarea>
+            <br>
+            <input type="submit" value="Отправить" class="btn btn-danger">
+          </form>
+        </div>
+        <div class="col-6">
+          <h3>Сообщения</h3>
+          <div id="all_mess"></div>
+        </div>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var min = 1;
+      var max = 6;
+      var randomValue = Math.floor(Math.random() * (max-min)) + min;
+
+      var alterClass;
+      switch (randomValue) {
+        case 1:
+          alterClass = 'secondary';
+          break;
+        case 2:
+          alterClass = 'danger';
+          break;
+        case 3:
+          alterClass = 'success';
+          break;
+        case 4:
+          alterClass = 'warning';
+          break;
+        case 5:
+          alterClass = 'info';
+          break;
+        case 6:
+          alterClass = 'light';
+          break;
+      };
+
+
+
+      $(function(){
+        var socket = io.connect();
+        var $form = $("#messForm");
+        var $textarea = $("#message");
+        var $name = $("#name");
+        var $resultText = $("#all_mess");
+
+        $form.submit(function(event) {
+          event.preventDefault();
+          socket.emit('send mess', {message: $textarea.val(), user: $name.val(), colorClass: alterClass});
+          $textarea.val('');
+        });
+
+        socket.on('add mess', function(data) {
+          $resultText.append("<div class='alert alert-"+ data.colorClass + "'><b>"+ data.user + "</b>: " + data.message + "</div>");
+        });
+
+      });
+    </script>
+  </body>
+</html>
